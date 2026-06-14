@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dataset
+dataset/
+
+# Flask Uploads
+uploads/
+
+# Logs
+*.log
+
+# Temporary Training Files
+cache_*.npz
+*.npz
+
+# Debug / Audit Scripts
+audit_*.py
+debug_*.py
+
+# Generated Reports
+training_executed.html
+training_executed.pdf
+training_metrics_proof.png
+
+# Environment Variables
+.env
+
+# macOS Metadata
+.AppleDouble
+.LSOverride
