@@ -138,6 +138,3 @@ Evaluated on a held-out test set of 99 videos (face model vs the original full-f
 | Fakes wrongly called REAL | 55 / 80 | **4 / 80** |
 
 **Headline metrics:** ROC-AUC **0.847**, Recall **0.950**, F1 **0.921**.
-
-> Note: the dataset is small and has few REAL videos, so the model occasionally flags a
-> real video as fake. More REAL training data would improve this. See `notebook/training.ipynb`.
