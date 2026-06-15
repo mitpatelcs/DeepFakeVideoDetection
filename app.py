@@ -16,6 +16,9 @@ import tensorflow as tf
 
 app = Flask(__name__)
 
+# Ensure the uploads directory exists (Gunicorn does not run the __main__ block)
+os.makedirs("uploads", exist_ok=True)
+
 IMG_SIZE = 224              # frame size fed to InceptionV3
 NUM_FEATURES = 2048        # InceptionV3 output features per frame
 SEQ_LEN = 20               # frames sampled per video
