@@ -1,6 +1,6 @@
 DeepFake Video Detection
 
-A simple web application that detects whether a face video is REAL or a deepfake (FAKE). Users can upload a video through the browser and receive a prediction along with a confidence score.
+A simple web application that detects whether a video is REAL or a deepfake (FAKE). Users can upload a video through the browser and receive a prediction along with a confidence score.
 
 The core idea is that deepfake artifacts primarily appear on the face, so the system detects and crops faces from video frames before classification.
 
@@ -8,9 +8,9 @@ The core idea is that deepfake artifacts primarily appear on the face, so the sy
 
 How It Works
 
-Video → Sample 20 Frames → Face Detection (YuNet) → InceptionV3 Features → GRU Model → Prediction
+Video → Extract 20 Frames → Face Detection (YuNet) → InceptionV3 Features → GRU Model → Prediction
 
-1. Sample 20 evenly spaced frames across the video.
+1. Extract 20 evenly spaced frames from the video.
 2. Detect and crop the largest face in each frame.
 3. Extract a 2048-dimensional feature vector from each face using InceptionV3.
 4. Process the sequence of feature vectors using a GRU-based temporal model.
