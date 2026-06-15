@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import os
 import ssl
-
-from wcwidth import width
 ssl._create_default_https_context = ssl._create_unverified_context  # allow ImageNet weights download
 
 from tensorflow.keras.models import Model, load_model
