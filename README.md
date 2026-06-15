@@ -1,140 +1,118 @@
-# DeepFake Video Detection
+DeepFake Video Detection
 
-A simple web app that detects whether a face video is **REAL** or a **deepfake (FAKE)**.
-You upload a video in the browser, and a deep learning model returns the prediction
-with a confidence score.
+A simple web application that detects whether a face video is REAL or a deepfake (FAKE). Users can upload a video through the browser and receive a prediction along with a confidence score.
 
-The key idea: deepfake artifacts live on the **face**, so the app crops the face out of
-each frame before classifying — this is what makes the model accurate.
+The core idea is that deepfake artifacts primarily appear on the face, so the system detects and crops faces from video frames before classification.
 
----
+⸻
 
-## How it works
+How It Works
 
-```
-Video ──> sample 20 frames ──> crop the face (YuNet) ──> InceptionV3 features ──> GRU model ──> P(FAKE)
-```
+Video → Sample 20 Frames → Face Detection (YuNet) → InceptionV3 Features → GRU Model → Prediction
 
-1. Sample 20 evenly-spaced frames across the whole clip.
-2. Detect and crop the largest face in each frame (with a small margin).
-3. Turn each face into a 2048-d feature vector using InceptionV3 (ImageNet).
-4. A small GRU network reads the 20-frame sequence and outputs P(FAKE).
-5. `P(FAKE) >= 0.5` → FAKE, otherwise REAL. Confidence is the probability of the predicted class.
+1. Sample 20 evenly spaced frames across the video.
+2. Detect and crop the largest face in each frame.
+3. Extract a 2048-dimensional feature vector from each face using InceptionV3.
+4. Process the sequence of feature vectors using a GRU-based temporal model.
+5. Generate a probability score and classify the video as REAL or FAKE.
 
----
+⸻
 
-## Project structure
+Project Structure
 
-```
 DeepFakeVideoDetection/
-├── dataset/                 # DFDC sample videos + metadata.json (labels)
 ├── model/
-│   ├── deepfake_video_model_v2.h5     # trained deepfake classifier (face-based)
-│   └── face_detection_yunet.onnx      # YuNet face detector
+│   ├── deepfake_video_model_v2.h5
+│   └── face_detection_yunet.onnx
 ├── notebook/
-│   └── training.ipynb       # how the model was trained + evaluated
-├── static/                  # spinner gifs
+│   └── training.ipynb
+├── static/
 ├── templates/
-│   └── index.html           # upload page + result display
-├── uploads/                 # temp folder for uploaded videos (auto-cleaned)
-├── app.py                   # the whole app: preprocessing + inference + web server
-├── README.md
+│   └── index.html
+├── app.py
 ├── requirements.txt
-└── Procfile                 # for cloud deployment (gunicorn)
-```
+├── Procfile
+└── README.md
 
----
+⸻
 
-## Dataset
+Dataset
 
-[DFDC – Deepfake Detection Challenge](https://www.kaggle.com/c/deepfake-detection-challenge) sample set.
+The model was trained and evaluated on a deepfake video dataset containing both real and manipulated videos.
 
-- Videos are 10 seconds, 30 fps, 1080p, one or more faces per clip.
-- Labels come from `dataset/train_sample_videos/metadata.json` (`REAL` / `FAKE`).
-- On-disk distribution: **74 REAL / 320 FAKE** (imbalanced, ~4.3:1).
+⸻
 
----
+Model Architecture
 
-## Model architecture
+Stage	Details
+Face Detection	YuNet (OpenCV DNN)
+Feature Extraction	InceptionV3 (ImageNet pretrained)
+Temporal Modeling	2-layer GRU Network
+Output	Probability of the video being FAKE
+Training Objective	Binary Classification
 
-| Stage | Details |
-|-------|---------|
-| Face detector | OpenCV **YuNet** (ONNX), largest face per frame + 30% margin |
-| Feature extractor | **InceptionV3** (ImageNet, frozen), global average pooling → 2048-d per frame |
-| Sequence model | GRU(64) → GRU(32) → Dropout(0.4) → Dense(32, relu) → Dropout(0.4) → Dense(1, sigmoid) |
-| Output | Single sigmoid = probability the video is FAKE |
-| Loss / training | binary cross-entropy, Adam, class weights, early stopping on validation AUC |
+⸻
 
----
+Performance
 
-## Face detection pipeline (why it improved performance)
+Metric	Score
+ROC-AUC	0.85
+Recall	0.95
+F1-Score	0.92
 
-The original model fed **whole 1080p frames** to InceptionV3. On a full frame the face is
-tiny, so the deepfake artifacts get averaged away — the features barely separated real from
-fake (cross-validated **AUC ≈ 0.59**, almost random).
+⸻
 
-Switching to **face-cropped** frames focuses the model on exactly where manipulation happens
-(blending edges, skin texture, eyes/mouth). On the same videos this raised separability to
-**AUC ≈ 0.85** — the single biggest improvement in the project.
+Why Face Cropping?
 
----
+The original approach used full video frames as input, where facial regions occupied only a small portion of the image. By focusing directly on cropped face regions, the model captures manipulation artifacts more effectively, improving classification performance from approximately 0.59 ROC-AUC to 0.85 ROC-AUC.
 
-## Installation
+⸻
+
+Installation
 
 Requires Python 3.10.
 
-```shell
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-```
 
----
+⸻
 
-## How to run
+Run Locally
 
-```shell
 python app.py
-```
 
-Open <http://127.0.0.1:5000/> in your browser, upload a video, and click **Detect Deepfake**.
+Open:
 
----
+http://127.0.0.1:5000
 
-## Sample output
+⸻
 
-The `/predict` endpoint returns JSON:
+Usage
 
-```json
+1. Open the application in your browser.
+2. Upload a video containing a clearly visible face.
+3. Wait for processing to complete.
+4. View the prediction result and confidence score.
+
+Note: The model performs best on videos with clear, frontal human faces. Results may vary for low-quality, heavily compressed, or partially occluded videos.
+
+⸻
+
+Sample Output
+
 {
   "result": "FAKE",
   "confidence": 0.99,
   "probability_fake": 0.991,
   "probability_real": 0.009
 }
-```
 
-Predictions on held-out test videos (unseen during training):
+⸻
 
-| video | truth | P(FAKE) | prediction | confidence |
-|-------|-------|---------|------------|------------|
-| degpbqvcay.mp4 | FAKE | 0.991 | **FAKE** ✓ | 99% |
-| eprybmbpba.mp4 | FAKE | 0.997 | **FAKE** ✓ | 100% |
-| bxzakyopjf.mp4 | REAL | 0.085 | **REAL** ✓ | 92% |
-| dxbqjxrhin.mp4 | REAL | 0.088 | **REAL** ✓ | 91% |
+Future Improvements
 
----
-
-## Results
-
-Evaluated on a held-out test set of 99 videos (face model vs the original full-frame model):
-
-| Metric | Old (full-frame) | **New (face-based)** |
-|--------|------------------|----------------------|
-| ROC-AUC | 0.649 | **0.847** |
-| Recall (FAKE caught) | 0.312 | **0.950** |
-| F1 score (FAKE) | 0.472 | **0.921** |
-| Balanced accuracy | 0.630 | **0.738** |
-| Fakes wrongly called REAL | 55 / 80 | **4 / 80** |
-
-**Headline metrics:** ROC-AUC **0.847**, Recall **0.950**, F1 **0.921**.
+* Support larger video files
+* Improve deployment scalability
+* Optimize inference speed
+* Explore transformer-based video architectures
