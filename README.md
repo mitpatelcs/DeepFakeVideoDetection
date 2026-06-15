@@ -1,14 +1,16 @@
-DeepFake Video Detection
+# DeepFake Video Detection
 
-A simple web application that detects whether a video is REAL or a deepfake (FAKE). Users can upload a video through the browser and receive a prediction along with a confidence score.
+A simple web application that detects whether a video is **REAL** or a **deepfake (FAKE)**. Users can upload a video through the browser and receive a prediction along with a confidence score.
 
 The core idea is that deepfake artifacts primarily appear on the face, so the system detects and crops faces from video frames before classification.
 
-⸻
+---
 
-How It Works
+## How It Works
 
+```text
 Video → Extract 20 Frames → Face Detection (YuNet) → InceptionV3 Features → GRU Model → Prediction
+```
 
 1. Extract 20 evenly spaced frames from the video.
 2. Detect and crop the largest face in each frame.
@@ -16,10 +18,11 @@ Video → Extract 20 Frames → Face Detection (YuNet) → InceptionV3 Features 
 4. Process the sequence of feature vectors using a GRU-based temporal model.
 5. Generate a probability score and classify the video as REAL or FAKE.
 
-⸻
+---
 
-Project Structure
+## Project Structure
 
+```text
 DeepFakeVideoDetection/
 ├── model/
 │   ├── deepfake_video_model_v2.h5
@@ -33,86 +36,129 @@ DeepFakeVideoDetection/
 ├── requirements.txt
 ├── Procfile
 └── README.md
+```
 
-⸻
+---
 
-Dataset
+## Model Architecture
 
-The model was trained and evaluated on a deepfake video dataset containing both real and manipulated videos.
+| Stage | Details |
+|---------|---------|
+| Face Detection | YuNet (OpenCV DNN) |
+| Feature Extraction | InceptionV3 (ImageNet Pretrained) |
+| Temporal Modeling | 2-Layer GRU Network |
+| Output | Probability of the video being FAKE |
+| Training Objective | Binary Classification |
 
-⸻
+---
 
-Model Architecture
+## Performance
 
-Stage	Details
-Face Detection	YuNet (OpenCV DNN)
-Feature Extraction	InceptionV3 (ImageNet pretrained)
-Temporal Modeling	2-layer GRU Network
-Output	Probability of the video being FAKE
-Training Objective	Binary Classification
+| Metric | Score |
+|---------|---------|
+| ROC-AUC | 0.85 |
+| Recall | 0.95 |
+| F1-Score | 0.92 |
 
-⸻
+---
 
-Performance
+## Why Face Cropping?
 
-Metric	Score
-ROC-AUC	0.85
-Recall	0.95
-F1-Score	0.92
+Deepfake artifacts are usually concentrated around facial regions such as the eyes, mouth, skin texture, and blending boundaries. By focusing on cropped face regions instead of full video frames, the model captures these artifacts more effectively and improves classification performance.
 
-⸻
+---
 
-Why Face Cropping?
-
-The original approach used full video frames as input, where facial regions occupied only a small portion of the image. By focusing directly on cropped face regions, the model captures manipulation artifacts more effectively, improving classification performance from approximately 0.59 ROC-AUC to 0.85 ROC-AUC.
-
-⸻
-
-Installation
+## Installation
 
 Requires Python 3.10.
 
+### Create Virtual Environment
+
+```bash
 python -m venv .venv
-source .venv/bin/activate     # Windows: .venv\Scripts\activate
+```
+
+### Activate Environment
+
+**Mac/Linux**
+
+```bash
+source .venv/bin/activate
+```
+
+**Windows**
+
+```bash
+.venv\Scripts\activate
+```
+
+### Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-⸻
+---
 
-Run Locally
+## Run Locally
 
+```bash
 python app.py
+```
 
-Open:
+Open your browser and visit:
 
+```text
 http://127.0.0.1:5000
+```
 
-⸻
+---
 
-Usage
+## Usage
 
-1. Open the application in your browser.
-2. Upload a video containing a clearly visible face.
+1. Launch the application.
+2. Upload a video file.
 3. Wait for processing to complete.
 4. View the prediction result and confidence score.
 
-Note: The model performs best on videos with clear, frontal human faces. Results may vary for low-quality, heavily compressed, or partially occluded videos.
+---
 
-⸻
+## Sample Output
 
-Sample Output
-
+```json
 {
   "result": "FAKE",
   "confidence": 0.99,
   "probability_fake": 0.991,
   "probability_real": 0.009
 }
+```
 
-⸻
+---
 
-Future Improvements
+## Technologies Used
 
-* Support larger video files
-* Improve deployment scalability
-* Optimize inference speed
-* Explore transformer-based video architectures
+- Python
+- TensorFlow
+- OpenCV
+- Flask
+- InceptionV3
+- GRU (Gated Recurrent Unit)
+- Computer Vision
+- Transfer Learning
+
+---
+
+## Future Improvements
+
+- Support larger video files
+- Improve deployment scalability
+- Optimize inference speed
+- Explore transformer-based video architectures
+- Expand training data for better generalization
+
+---
+
+## Author
+
+Mit S Patel
