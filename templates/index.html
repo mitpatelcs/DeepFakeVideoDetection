@@ -169,9 +169,7 @@
                     return;
                 }
 
-                // Display the prediction result.
-                // confidence is the model's confidence in the predicted label;
-                // P(Fake)/P(Real) are shown for full transparency.
+                // Display prediction, confidence, and probabilities.
                 const confPct = (data.confidence * 100).toFixed(1);
                 const fakePct = (data.probability_fake * 100).toFixed(1);
                 const realPct = (data.probability_real * 100).toFixed(1);

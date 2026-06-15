@@ -16,7 +16,7 @@ import tensorflow as tf
 
 app = Flask(__name__)
 
-IMG_SIZE = 224              # frame size fed to InceptionV3
+IMG_SIZE = 224             # frame size fed to InceptionV3
 NUM_FEATURES = 2048        # InceptionV3 output features per frame
 SEQ_LEN = 20               # frames sampled per video
 DECISION_THRESHOLD = 0.5   
