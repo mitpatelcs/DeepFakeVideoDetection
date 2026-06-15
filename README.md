@@ -97,9 +97,11 @@ http://127.0.0.1:5000
 Usage
 
 1. Open the application in your browser.
-2. Upload a video file.
+2. Upload a video file containing a clearly visible face.
 3. Wait for processing to complete.
 4. View the prediction result and confidence score.
+
+Note: The model performs best on videos with clear, frontal human faces. Results may vary for low-quality, heavily compressed, or partially occluded videos.
 
 Future Improvements
 
